@@ -94,6 +94,36 @@ Metric definitions follow `docs/kpi_framework.md`. Source tables are in the `gol
 
 ---
 
+## Module 4 – Instacart grocery assortment
+
+### #13 Produce and dairy are destination departments; meat is weak online ✅
+- **Evidence:** order penetration – produce 74.9% (~3.9 items when present), dairy & eggs 67.7%. Penetration values sum to ~474%, so the average order touches **~4.7 departments**. Meat & seafood appears in only **17.9%** of orders; babies is niche (5.5%) but deep (~2.4 items per order).
+- **Implication:** anchor reorder features on produce and dairy; build trust in buying fresh meat online; cross-sell for broad-but-shallow departments (bakery, deli), targeted offers for niche-but-deep ones (babies, alcohol).
+- **Data quality:** a "missing" department covers 1.98% of orders.
+
+### #14 Staples are fresh everyday items; low reorder means long cycles ✅
+- **Evidence (reorder rate, first orders excluded):** milk 82.7%, water/seltzer 77.4%, fresh fruits 76.2% (largest aisle, 3.58M items), eggs 75.1%, yogurt 73.0%. Lowest: spices 16.4%, baking supplies 18.0%, first aid and personal care 21–29%.
+- **Interpretation:** low reorder reflects long replenishment cycles, not dissatisfaction.
+- **Link to #13:** meat & seafood has low penetration (17.9%) but healthy reorder (60.8%) – the barrier is the first online purchase, not retention.
+- **Implication:** protect staple availability and price competitiveness (KVIs); consider auto-replenish; target first-time meat buyers.
+
+### #15 Staples are added to the cart first, long-cycle categories last ✅
+- **Evidence (relative cart position, 0 = first, 1 = last):** dairy 0.454, beverages 0.460, produce 0.486 vs. personal care 0.568, pantry 0.560, household 0.544. Normalizing by basket size corrects raw positions (babies look "late" only because they appear in large baskets).
+- **Implication:** surface staples first ("Buy it again"); add "Did you forget?" prompts at checkout for long-cycle categories.
+- **Caveat:** app design influences add-to-cart order.
+
+### #16 Loyalty drives frequency, not basket size ✅
+- **Evidence:** median basket 8 items (mean 10.1, p90 20 – right-skewed). Average basket stays ~10 items from a customer's 1st to 20th order. Missions: top-up (≤5 items, ~25% of orders), regular (6–19), stock-up (20+, ~10%).
+- **Implication:** basket building (cross-sell) is an untapped lever; tailor experiences to each mission.
+- **Caveats:** the dataset only includes customers with 4+ orders, so early churn cannot be measured; the order-number curve is affected by survivorship (a fixed-cohort check is recommended).
+
+### #17 Strongest affinities are variety-buying and recipe combinations ✅
+- **Evidence (top 100 products, ≥1,000 co-occurring orders):** sparkling water flavors bought together (lift 12–18); vegetables + herbs + fruit (lift 6–10); frozen produce + packaged produce (lift 5.75).
+- **Implication:** variety packs and multi-buy offers for beverages; recipe bundles and "complete your recipe" prompts for produce.
+- **Limitation:** the top-100 scope is dominated by produce; expand scope or analyze within/between departments to find cross-department pairs.
+
+---
+
 ## Method notes (lessons applied)
 - Time series are **driven from `dim_date` with a LEFT JOIN**, so days with no activity still appear.
 - Rates are **weighted** (total numerator ÷ total denominator), never averages of daily percentages.
@@ -101,4 +131,6 @@ Metric definitions follow `docs/kpi_framework.md`. Source tables are in the `gol
 - Moving averages are **null until the window is full** and **smear outliers** across 7 days.
 - Every average-based conclusion is re-checked with **medians** and **with outliers excluded**.
 - Data quality gaps are reported **weighted by products, events and revenue** – the weighting changes the story.
+- Grain decides whether `COUNT(DISTINCT)` is needed (sessions: no; order-product rows: yes).
+- Behavioral metrics are interpreted against the underlying purchase cycle and the dataset's selection (survivorship).
 - Extreme results are **sanity-checked** (e.g. Pareto on selling SKUs only) before interpretation.
