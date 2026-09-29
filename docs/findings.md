@@ -124,6 +124,38 @@ Metric definitions follow `docs/kpi_framework.md`. Source tables are in the `gol
 
 ---
 
+## Module 5 – Price drivers
+
+### #18 Conversion is flat across price bands; value per view rises ~120× ✅
+- **Evidence (weighted by traffic):**
+
+| Price band (USD) | SKUs | View → purchase | Revenue per view | Revenue share |
+|---|---|---|---|---|
+| Under 25 | 55,563 | 1.19% | $0.18 | 0.25% |
+| 25–50 | 31,804 | 1.54% | $0.58 | 1.37% |
+| 50–100 | 37,572 | 1.22% | $0.89 | 2.96% |
+| 100–250 | 42,342 | 1.90% | $3.23 | 20.07% |
+| 250–500 | 21,669 | 1.49% | $5.31 | 20.50% |
+| 500–1000 | 10,983 | 1.73% | $12.95 | 31.11% |
+| 1000+ | 5,482 | 1.65% | $22.24 | 23.74% |
+
+- Products over $100 generate ~95% of revenue; the 55,563 SKUs under $25 generate 0.25%.
+- **Implication:** allocate promotional space (e.g. homepage) by revenue per view – ideally margin per view – not by conversion rate.
+- **Caveat:** no margin data; revenue is not profit.
+
+### #19 At product level, price is a real but minor driver of conversion ✅
+- **Evidence (14,767 products with ≥ 1,000 views):** Pearson −0.22, Pearson on log price −0.25, Spearman −0.28. Price explains ~6% of the variation in conversion (r² ≈ 0.06).
+- **Reconciling #18:** band-level conversion looks flat because traffic-weighted rates are dominated by high-traffic hero products; at the typical-product level, higher-priced products convert somewhat less.
+- **Implication:** improving poor converters needs content, availability and assortment fixes – not only price cuts.
+
+### #20 Price sensitivity is category-specific ✅
+- **Evidence (Spearman within `category_l2`, ≥ 50 products):** desktops −0.63, irons −0.58, notebooks −0.47, components −0.43, living room and bedroom furniture −0.41 – stronger than the overall −0.28. Smartphones (861 products, the largest category) +0.06, tablets −0.12, sewing machines +0.02 – no meaningful relationship.
+- **Interpretation:** category mix diluted the overall price effect (confounding that attenuated the correlation – not a sign reversal). In smartphones, brand and model desirability dominate; price mainly reflects the model tier customers already chose.
+- **Implication:** invest in price competitiveness (price matching, promotions) for computers, small appliances and furniture; in smartphones, compete on availability of desired models, delivery and trade-ins rather than discounts.
+- **Caveat:** correlation, not causation; category-level price tests would confirm elasticity.
+
+---
+
 ## Method notes (lessons applied)
 - Time series are **driven from `dim_date` with a LEFT JOIN**, so days with no activity still appear.
 - Rates are **weighted** (total numerator ÷ total denominator), never averages of daily percentages.
@@ -133,4 +165,6 @@ Metric definitions follow `docs/kpi_framework.md`. Source tables are in the `gol
 - Data quality gaps are reported **weighted by products, events and revenue** – the weighting changes the story.
 - Grain decides whether `COUNT(DISTINCT)` is needed (sessions: no; order-product rows: yes).
 - Behavioral metrics are interpreted against the underlying purchase cycle and the dataset's selection (survivorship).
+- When two correct analyses disagree, check **what each one weights** (traffic-weighted vs. product-level).
+- Correlations are checked with **Pearson, log-Pearson and Spearman**; near-zero results are reported as "no detectable relationship", never as a positive effect.
 - Extreme results are **sanity-checked** (e.g. Pareto on selling SKUs only) before interpretation.
